@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Buyer Info Form - Discord Version</title>
+<title>Buyer Info Form</title>
 <style>
   body { font-family: Arial, sans-serif; padding:1em; max-width:500px; margin:auto; background:#f9f9f9;}
   h2 {text-align:center;}
@@ -122,7 +122,7 @@ function showReview() {
   else if(pkg==="Standard Package"){ tos=document.getElementById("tos-select").value; days=document.getElementById("days-dropdown-select").value; }
   else if(pkg==="Premium Package"){ tos=document.getElementById("tos-select").value; days=document.getElementById("days-input-field").value || "N/A"; }
 
-  const review = `🛍️ New Buyer Submission\nName: ${name}\nEmail: ${email}\nGrade Level: ${grade}\nAssessment Package: ${pkg}\nTOS Format: ${tos}\nNumber of Days: ${days}\nOrder Notes:\n${order}`;
+  const review = `🛍️ New Buyer Submission\nName: ${name}\nEmail: ${email}\nGrade Level: ${grade}\nAssessment Package: ${pkg}\nTOS Format: ${tos}\nNumber of Days: ${days}\nHeader:\n${order}`;
   document.getElementById("reviewContent").textContent = review;
   document.getElementById("orderForm").style.display = "none";
   document.getElementById("reviewSection").style.display = "block";
