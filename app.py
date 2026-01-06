@@ -15,6 +15,7 @@ GRADE_LEVELS = [
     "Grade 7", "Grade 8", "Grade 9", "Grade 10"
 ]
 
+# New list for Test Types
 TEST_TYPES = [
     "Periodic Test",
     "Summative Test"
@@ -33,48 +34,13 @@ HTML_FORM = """
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Buyer Info Form</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 1em;
-      max-width: 500px;
-      margin: auto;
-      background: #f9f9f9;
-    }
-    h2 {
-      text-align: center;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 1em;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 0.7em;
-      margin-top: 0.3em;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-    input[type=submit], button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      margin-top: 1em;
-      padding: 0.7em;
-      cursor: pointer;
-      width: 100%;
-      border-radius: 5px;
-    }
-    input[type=submit]:hover, button:hover {
-      background-color: #45a049;
-    }
-    #reviewContent {
-      white-space: pre-wrap;
-      background: #eef;
-      padding: 1em;
-      border-radius: 5px;
-    }
+    body { font-family: Arial, sans-serif; padding: 1em; max-width: 500px; margin: auto; background: #f9f9f9; }
+    h2 { text-align: center; }
+    label { font-weight: bold; display: block; margin-top: 1em; }
+    input, select, textarea { width: 100%; padding: 0.7em; margin-top: 0.3em; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    input[type=submit], button { background-color: #4CAF50; color: white; border: none; margin-top: 1em; padding: 0.7em; cursor: pointer; width: 100%; border-radius: 5px; }
+    input[type=submit]:hover, button:hover { background-color: #45a049; }
+    #reviewContent { white-space: pre-wrap; background: #eef; padding: 1em; border-radius: 5px; }
   </style>
   <script>
     function toggleOptions() {
@@ -94,7 +60,7 @@ HTML_FORM = """
       const name = form.name.value;
       const email = form.email.value;
       const grade = form.grade.value;
-      const testType = form.test_type.value;
+      const test_type = form.test_type.value; // Get Test Type
       const package = form.package.value;
       const order = form.order.value;
 
@@ -106,54 +72,44 @@ HTML_FORM = """
         days = "35 days";
       } else {
         const tosSelect = document.querySelector('#tos-format select');
-        if (tosSelect) {
-          tos = tosSelect.options[tosSelect.selectedIndex].value;
-        }
+        if (tosSelect) tos = tosSelect.options[tosSelect.selectedIndex].value;
 
         if (package === "Standard Package") {
           const daysDropdown = document.querySelector('#days-dropdown select');
-          if (daysDropdown) {
-            days = daysDropdown.options[daysDropdown.selectedIndex].value;
-          }
+          if (daysDropdown) days = daysDropdown.options[daysDropdown.selectedIndex].value;
         } else if (package === "Premium Package") {
           const daysInput = document.querySelector('#days-input input');
-          if (daysInput) {
-            days = daysInput.value;
-          }
+          if (daysInput) days = daysInput.value;
         }
       }
 
-      // Sync hidden fields for submission
       document.getElementById("tos_final").value = tos;
       document.getElementById("days_final").value = days;
 
       content.textContent =
-        `🛍️ New Buyer Submission\n` +
-        `Name: ${name}\n` +
-        `Email: ${email}\n` +
-        `Grade Level: ${grade}\n` +
-        `Test Type: ${testType}\n` +
-        `Assessment Package: ${package}\n` +
-        `TOS Format: ${tos}\n` +
-        `Number of Days: ${days}\n` +
-        `Order Notes:\n${order}`;
+        `🛍️ New Buyer Submission\\n` +
+        `Name: ${name}\\n` +
+        `Email: ${email}\\n` +
+        `Grade Level: ${grade}\\n` +
+        `Test Type: ${test_type}\\n` +
+        `Assessment Package: ${package}\\n` +
+        `TOS Format: ${tos}\\n` +
+        `Number of Days: ${days}\\n` +
+        `Order Notes:\\n${order}`;
 
       form.style.display = "none";
       review.style.display = "block";
       return false;
     }
 
-    function submitForm() {
-      document.getElementById("orderForm").submit();
-    }
-
+    function submitForm() { document.getElementById("orderForm").submit(); }
     function editForm() {
       document.getElementById("orderForm").style.display = "block";
       document.getElementById("reviewSection").style.display = "none";
     }
   </script>
 </head>
-<body>
+<body onload="toggleOptions()">
   <h2>Fill-out na, KasaMath!</h2>
   <form id="orderForm" method="post" onsubmit="return showReview()">
     <label>Name:</label>
@@ -171,8 +127,8 @@ HTML_FORM = """
 
     <label>Test Type:</label>
     <select name="test_type" required>
-      {% for test_type in test_types %}
-        <option value="{{ test_type }}">{{ test_type }}</option>
+      {% for type in test_types %}
+        <option value="{{ type }}">{{ type }}</option>
       {% endfor %}
     </select>
 
@@ -225,7 +181,6 @@ SAUYO HIGH SCHOOL
 Pantabangan St., NIA Village, Sauyo, Quezon City
     </textarea>
 
-    <!-- Hidden fields to sync review values -->
     <input type="hidden" name="tos_final" id="tos_final">
     <input type="hidden" name="days_final" id="days_final">
 
@@ -248,13 +203,12 @@ def collect_info():
         name = request.form.get("name", "")
         email = request.form.get("email", "")
         grade = request.form.get("grade", "")
-        test_type = request.form.get("test_type", "")
+        test_type = request.form.get("test_type", "") # Capture Test Type
         package = request.form.get("package", "")
         order = request.form.get("order", "").strip()
         tos = request.form.get("tos_final", "N/A")
         days = request.form.get("days_final", "N/A")
 
-    
         message = (
             f"🛍️ **New Buyer Submission**\n"
             f"**Name:** {name}\n"
@@ -274,7 +228,7 @@ def collect_info():
         HTML_FORM,
         packages=ASSESSMENT_PACKAGES,
         grades=GRADE_LEVELS,
-        test_types=TEST_TYPES,
+        test_types=TEST_TYPES, # Pass Test Types to template
         tos_formats=TOS_FORMATS
     )
 
