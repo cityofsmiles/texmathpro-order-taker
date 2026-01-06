@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buyer Info Form</title>
+<style>
+  body { font-family: Arial, sans-serif; padding:1em; max-width:500px; margin:auto; background:#f9f9f9;}
+  h2 {text-align:center;}
+  label {font-weight:bold; display:block; margin-top:1em;}
+  input, select, textarea {width:100%; padding:0.7em; margin-top:0.3em; border:1px solid #ccc; border-radius:5px; box-sizing:border-box;}
+  input[type=submit], button {background-color:#4CAF50;color:white;border:none;margin-top:1em;padding:0.7em;cursor:pointer;width:100%;border-radius:5px;}
+  input[type=submit]:hover, button:hover {background-color:#45a049;}
+  #reviewContent {white-space:pre-wrap;background:#eef;padding:1em;border-radius:5px;}
+</style>
+</head>
+<body>
+<h2>Fill-out na, KasaMath!</h2>
+
+<form id="orderForm" onsubmit="return showReview()">
+  <label>Name:</label>
+  <input type="text" id="name" required>
+
+  <label>Email:</label>
+  <input type="email" id="email" required>
+
+  <label>Grade Level:</label>
+  <select id="grade" required></select>
+
+  <label>Select Assessment Package:</label>
+  <select id="package" onchange="toggleOptions()" required></select>
+
+  <div id="tos-fixed" style="display:none;">
+    <label>TOS Format:</label>
+    <input type="text" id="tos-fixed-input" value="Bloom's Taxonomy format" readonly>
+  </div>
+
+  <div id="tos-format" style="display:none;">
+    <label>TOS Format:</label>
+    <select id="tos-select"></select>
+  </div>
+
+  <div id="days-fixed" style="display:none;">
+    <label>Number of Days:</label>
+    <input type="text" id="days-fixed-input" value="35 days" readonly>
+  </div>
+
+  <div id="days-dropdown" style="display:none;">
+    <label>Number of Days:</label>
+    <select id="days-dropdown-select">
+      <option value="35 days">35 days</option>
+      <option value="40 days">40 days</option>
+    </select>
+  </div>
+
+  <div id="days-input" style="display:none;">
+    <label>Number of Days:</label>
+    <input type="text" id="days-input-field" placeholder="e.g. 42 days">
+  </div>
+
+  <label>Palitan po ang Infos para sa Header:</label>
+  <textarea id="order" rows="6" required>
+Republic of the Philippines
+Department of Education
+National Capital Region
+SCHOOLS DIVISION OFFICE QUEZON CITY
+SAUYO HIGH SCHOOL
+Pantabangan St., NIA Village, Sauyo, Quezon City
+  </textarea>
+
+  <input type="submit" value="Review Before Submit">
+</form>
+
+<div id="reviewSection" style="display:none;">
+  <h3>📋 Review Your Submission</h3>
+  <div id="reviewContent"></div>
+  <button onclick="submitToDiscord()">✅ Confirm and Submit</button>
+  <button onclick="editForm()">✏️ Edit</button>
+</div>
+
+<div id="resultSection" style="display:none;">
+  <h3>✅ Submitted!</h3>
+  <p>Thank you po sa pagsuporta sa TeXMathPro! Isesend ko po sa e-mail ang files after payment.</p>
+</div>
+
+<script>
+const DISCORD_WEBHOOK_URL = "https://canary.discord.com/api/webhooks/1438369273872515124/3k2OCJeg3mH0ut93rtxrMpgVxNi7PEjBpu0I-CkRRHUPRGbOveWmuiFahHuNZWzHZEKB"; // Replace with your webhook
+
+const PACKAGES = ["Basic Package", "Standard Package", "Premium Package"];
+const GRADES = ["Grade 7", "Grade 8", "Grade 9", "Grade 10"];
+const TOS_FORMATS = ["Bloom's Taxonomy format", "21st Century Skills format"];
+
+document.addEventListener("DOMContentLoaded", () => {
+  const gradeSel = document.getElementById("grade");
+  GRADES.forEach(g => gradeSel.appendChild(new Option(g,g)));
+
+  const pkgSel = document.getElementById("package");
+  PACKAGES.forEach(p => pkgSel.appendChild(new Option(p,p)));
+
+  const tosSel = document.getElementById("tos-select");
+  TOS_FORMATS.forEach(f => tosSel.appendChild(new Option(f,f)));
+});
+
+function toggleOptions() {
+  const pkg = document.getElementById("package").value;
+  document.getElementById("tos-fixed").style.display = pkg==="Basic Package"?"block":"none";
+  document.getElementById("tos-format").style.display = pkg!=="Basic Package"?"block":"none";
+  document.getElementById("days-fixed").style.display = pkg==="Basic Package"?"block":"none";
+  document.getElementById("days-dropdown").style.display = pkg==="Standard Package"?"block":"none";
+  document.getElementById("days-input").style.display = pkg==="Premium Package"?"block":"none";
+}
+
+function showReview() {
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const grade = document.getElementById("grade").value;
+  const pkg = document.getElementById("package").value;
+  const order = document.getElementById("order").value.trim();
+
+  let tos="N/A", days="N/A";
+  if(pkg==="Basic Package"){ tos="Bloom's Taxonomy format"; days="35 days"; }
+  else if(pkg==="Standard Package"){ tos=document.getElementById("tos-select").value; days=document.getElementById("days-dropdown-select").value; }
+  else if(pkg==="Premium Package"){ tos=document.getElementById("tos-select").value; days=document.getElementById("days-input-field").value || "N/A"; }
+
+  const review = `🛍️ New Buyer Submission\nName: ${name}\nEmail: ${email}\nGrade Level: ${grade}\nAssessment Package: ${pkg}\nTOS Format: ${tos}\nNumber of Days: ${days}\nHeader:\n${order}`;
+  document.getElementById("reviewContent").textContent = review;
+  document.getElementById("orderForm").style.display = "none";
+  document.getElementById("reviewSection").style.display = "block";
+  return false;
+}
+
+function editForm() {
+  document.getElementById("reviewSection").style.display="none";
+  document.getElementById("orderForm").style.display="block";
+}
+
+async function submitToDiscord() {
+  const message = document.getElementById("reviewContent").textContent;
+  try {
+    const resp = await fetch(DISCORD_WEBHOOK_URL, {
+      method:"POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({content: message})
+    });
+    if(resp.ok){
+      document.getElementById("reviewSection").style.display="none";
+      document.getElementById("resultSection").style.display="block";
+    } else { alert("Failed to send message. Check webhook URL."); }
+  } catch(err){ alert("Error sending message: "+err); }
+}
+</script>
+</body>
+</html>
