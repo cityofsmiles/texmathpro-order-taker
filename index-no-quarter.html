@@ -27,14 +27,6 @@
   <label>Grade Level:</label>
   <select id="grade" required></select>
 
-  <label>Quarter:</label>
-  <select id="quarter" required>
-    <option value="1st Quarter">1st Quarter</option>
-    <option value="2nd Quarter">2nd Quarter</option>
-    <option value="3rd Quarter">3rd Quarter</option>
-    <option value="4th Quarter">4th Quarter</option>
-  </select>
-
   <label>Test Type:</label>
   <select id="test_type" required></select>
 
@@ -132,7 +124,6 @@ function showReview() {
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
   const grade = document.getElementById("grade").value;
-  const quarter = document.getElementById("quarter").value;
   const test_type = document.getElementById("test_type").value; // Get Test Type
   const pkg = document.getElementById("package").value;
   const order = document.getElementById("order").value.trim();
@@ -149,7 +140,7 @@ function showReview() {
   }
 
   // Updated review string to include Test Type
-  const review = `🛍️ New Buyer Submission\nName: ${name}\nEmail: ${email}\nGrade Level: ${grade}\nQuarter: ${quarter}\nTest Type: ${test_type}\nAssessment Package: ${pkg}\nTOS Format: ${tos}\nNumber of Days: ${days}\nHeader:\n${order}`;
+  const review = `🛍️ New Buyer Submission\nName: ${name}\nEmail: ${email}\nGrade Level: ${grade}\nTest Type: ${test_type}\nAssessment Package: ${pkg}\nTOS Format: ${tos}\nNumber of Days: ${days}\nHeader:\n${order}`;
   
   document.getElementById("reviewContent").textContent = review;
   document.getElementById("orderForm").style.display = "none";
